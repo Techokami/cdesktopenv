@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-CLEANFILES = init.c DtFuncs.dtsh
+CLEANFILES = init.c DtFuncs.dtsh libshell.a
 
 SUBDIRS = examples
 
