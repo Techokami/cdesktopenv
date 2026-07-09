@@ -31,8 +31,15 @@ BUILT_SOURCES = Prelude.h Support/Support.d Support/Support.h		\
 
 CLEANFILES = $(BUILT_SOURCES)
 
-Prelude.h:
-	$(top_builddir)/programs/dtinfo/tools/misc/pmaker $(CLASSLIBS)
+PMAKER = $(top_builddir)/programs/dtinfo/tools/misc/pmaker
+
+$(PMAKER):
+	$(MAKE) -C $(top_builddir)/programs/dtinfo/tools/misc pmaker
+
+Prelude.h: $(PMAKER)
+	$(PMAKER) $(CLASSLIBS)
+
+tags-recursive ctags-recursive cscope-recursive cscopelist-recursive: Prelude.h
 
 Dtinfo: Dtinfo.res $(RESFILES)
 	$(CPP_PROGRAM) -traditional -nostdinc -C Dtinfo.res | $(TREERES) > $@
