@@ -24,9 +24,32 @@ BUILT_SOURCES = dtbuilder.h dtbuilder.c about_box_ui.h appfw_ui.h \
 
 appdefaults_DATA = Dtbuilder
 
-DTCODEGENCAT = NLSPATH=$(top_builddir)/programs/dtappbuilder/src/abmf/dtcodegen.cat
+DTCODEGEN_PROG = $(top_builddir)/programs/dtappbuilder/src/abmf/dtcodegen
+DTCODEGEN_CAT = $(top_builddir)/programs/dtappbuilder/src/abmf/dtcodegen.cat
 
-DTCODEGEN = $(DTCODEGENCAT) ../abmf/dtcodegen
+DTCODEGEN_LIBS = \
+	$(top_builddir)/lib/DtXinerama/libDtXinerama.la \
+	$(top_builddir)/lib/tt/lib/libtt.la \
+	$(top_builddir)/lib/DtSvc/libDtSvc.la \
+	$(top_builddir)/lib/DtWidget/libDtWidget.la \
+	$(top_builddir)/lib/DtHelp/libDtHelp.la \
+	$(top_builddir)/lib/DtTerm/libDtTerm.la
+
+DTCODEGEN_PREREQS = $(DTCODEGEN_LIBS) $(DTCODEGEN_PROG) $(DTCODEGEN_CAT)
+
+DTCODEGENCAT = NLSPATH=$(DTCODEGEN_CAT)
+
+DTCODEGEN = $(DTCODEGENCAT) $(DTCODEGEN_PROG)
+
+$(DTCODEGEN_LIBS):
+	$(MAKE) -C $(top_builddir)/lib all
+
+$(DTCODEGEN_PROG) $(DTCODEGEN_CAT): $(DTCODEGEN_LIBS)
+	$(MAKE) -C $(top_builddir)/programs/dtappbuilder/src/libAButil all
+	$(MAKE) -C $(top_builddir)/programs/dtappbuilder/src/libABobj all
+	$(MAKE) -C $(top_builddir)/programs/dtappbuilder/src/libABobjXm all
+	$(MAKE) -C $(top_builddir)/programs/dtappbuilder/src/libABil all
+	$(MAKE) -C $(top_builddir)/programs/dtappbuilder/src/abmf dtcodegen dtcodegen.cat
 
 if BSD
 UTILLIB = -lutil
@@ -200,225 +223,225 @@ Dtbuilder: Dtbuilder.src
 
 if SOLARIS
 
-dtbuilder.h + dtb_utils.c + dtb_utils.h: dtbuilder.bip dtbuilder.c dtbuilder.msg
+dtbuilder.h + dtb_utils.c + dtb_utils.h: dtbuilder.bip dtbuilder.c dtbuilder.msg $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p dtbuilder.bip -main
 
 PROJFILE = dtbuilder
 
-about_box_ui.c + about_box_ui.h + about_box_stubs.c: $(PROJFILE).bip about_box.bil
+about_box_ui.c + about_box_ui.h + about_box_stubs.c: $(PROJFILE).bip about_box.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip about_box.bil
 
-appfw_ui.c + appfw_ui.h + appfw_stubs.c: $(PROJFILE).bip appfw.bil
+appfw_ui.c + appfw_ui.h + appfw_stubs.c: $(PROJFILE).bip appfw.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip appfw.bil
 
-attch_ed_ui.c + attch_ed_ui.h + attch_ed_stubs.c: $(PROJFILE).bip attch_ed.bil
+attch_ed_ui.c + attch_ed_ui.h + attch_ed_stubs.c: $(PROJFILE).bip attch_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip attch_ed.bil
 
-brws_ui.c + brws_ui.h + brws_stubs.c: $(PROJFILE).bip brws.bil
+brws_ui.c + brws_ui.h + brws_stubs.c: $(PROJFILE).bip brws.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip brws.bil
 
-button_ui.c + button_ui.h + button_stubs.c: $(PROJFILE).bip button.bil
+button_ui.c + button_ui.h + button_stubs.c: $(PROJFILE).bip button.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip button.bil
 
-cgen_env_ui.c + cgen_env_ui.h + cgen_env_stubs.c: $(PROJFILE).bip cgen_env.bil
+cgen_env_ui.c + cgen_env_ui.h + cgen_env_stubs.c: $(PROJFILE).bip cgen_env.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cgen_env.bil
 
-cgen_props_ui.c + cgen_props_ui.h + cgen_props_stubs.c: $(PROJFILE).bip cgen_props.bil
+cgen_props_ui.c + cgen_props_ui.h + cgen_props_stubs.c: $(PROJFILE).bip cgen_props.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cgen_props.bil
 
-cgen_win_ui.c + cgen_win_ui.h + cgen_win_stubs.c: $(PROJFILE).bip cgen_win.bil
+cgen_win_ui.c + cgen_win_ui.h + cgen_win_stubs.c: $(PROJFILE).bip cgen_win.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cgen_win.bil
 
-choice_ui.c + choice_ui.h + choice_stubs.c: $(PROJFILE).bip choice.bil
+choice_ui.c + choice_ui.h + choice_stubs.c: $(PROJFILE).bip choice.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip choice.bil
 
-color_chooser_ui.c + color_chooser_ui.h + color_chooser_stubs.c: $(PROJFILE).bip color_chooser.bil
+color_chooser_ui.c + color_chooser_ui.h + color_chooser_stubs.c: $(PROJFILE).bip color_chooser.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip color_chooser.bil
 
-combobox_ui.c + combobox_ui.h + combobox_stubs.c: $(PROJFILE).bip combobox.bil
+combobox_ui.c + combobox_ui.h + combobox_stubs.c: $(PROJFILE).bip combobox.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip combobox.bil
 
-conn_ui.c + conn_ui.h + conn_stubs.c: $(PROJFILE).bip conn.bil
+conn_ui.c + conn_ui.h + conn_stubs.c: $(PROJFILE).bip conn.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip conn.bil
 
-cpanel_ui.c + cpanel_ui.h + cpanel_stubs.c: $(PROJFILE).bip cpanel.bil
+cpanel_ui.c + cpanel_ui.h + cpanel_stubs.c: $(PROJFILE).bip cpanel.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cpanel.bil
 
-custdlg_ui.c + custdlg_ui.h + custdlg_stubs.c: $(PROJFILE).bip custdlg.bil
+custdlg_ui.c + custdlg_ui.h + custdlg_stubs.c: $(PROJFILE).bip custdlg.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip custdlg.bil
 
-dnd_ed_ui.c + dnd_ed_ui.h + dnd_ed_stubs.c: $(PROJFILE).bip dnd_ed.bil
+dnd_ed_ui.c + dnd_ed_ui.h + dnd_ed_stubs.c: $(PROJFILE).bip dnd_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip dnd_ed.bil
 
-drawp_ui.c + drawp_ui.h + drawp_stubs.c: $(PROJFILE).bip drawp.bil
+drawp_ui.c + drawp_ui.h + drawp_stubs.c: $(PROJFILE).bip drawp.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip drawp.bil
 
-fchooser_ui.c + fchooser_ui.h + fchooser_stubs.c: $(PROJFILE).bip fchooser.bil
+fchooser_ui.c + fchooser_ui.h + fchooser_stubs.c: $(PROJFILE).bip fchooser.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip fchooser.bil
 
-group_ui.c + group_ui.h + group_stubs.c: $(PROJFILE).bip group.bil
+group_ui.c + group_ui.h + group_stubs.c: $(PROJFILE).bip group.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip group.bil
 
-help_ed_ui.c + help_ed_ui.h + help_ed_stubs.c: $(PROJFILE).bip help_ed.bil
+help_ed_ui.c + help_ed_ui.h + help_ed_stubs.c: $(PROJFILE).bip help_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip help_ed.bil
 
-label_ui.c + label_ui.h + label_stubs.c: $(PROJFILE).bip label.bil
+label_ui.c + label_ui.h + label_stubs.c: $(PROJFILE).bip label.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip label.bil
 
-list_ui.c + list_ui.h + list_stubs.c: $(PROJFILE).bip list.bil
+list_ui.c + list_ui.h + list_stubs.c: $(PROJFILE).bip list.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip list.bil
 
-mainwin_ui.c + mainwin_ui.h + mainwin_stubs.c: $(PROJFILE).bip mainwin.bil
+mainwin_ui.c + mainwin_ui.h + mainwin_stubs.c: $(PROJFILE).bip mainwin.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip mainwin.bil
 
-menu_ui.c + menu_ui.h + menu_stubs.c: $(PROJFILE).bip menu.bil
+menu_ui.c + menu_ui.h + menu_stubs.c: $(PROJFILE).bip menu.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip menu.bil
 
-menubar_ui.c + menubar_ui.h + menubar_stubs.c: $(PROJFILE).bip menubar.bil
+menubar_ui.c + menubar_ui.h + menubar_stubs.c: $(PROJFILE).bip menubar.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip menubar.bil
 
-message_ed_ui.c + message_ed_ui.h + message_ed_stubs.c: $(PROJFILE).bip message_ed.bil
+message_ed_ui.c + message_ed_ui.h + message_ed_stubs.c: $(PROJFILE).bip message_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip message_ed.bil
 
-palette_ui.c + palette_ui.h + palette_stubs.c: $(PROJFILE).bip palette.bil
+palette_ui.c + palette_ui.h + palette_stubs.c: $(PROJFILE).bip palette.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip palette.bil
 
-panedwin_ed_ui.c + panedwin_ed_ui.h + panedwin_ed_stubs.c: $(PROJFILE).bip panedwin_ed.bil
+panedwin_ed_ui.c + panedwin_ed_ui.h + panedwin_ed_stubs.c: $(PROJFILE).bip panedwin_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip panedwin_ed.bil
 
-proj_ui.c + proj_ui.h + proj_stubs.c: $(PROJFILE).bip proj.bil
+proj_ui.c + proj_ui.h + proj_stubs.c: $(PROJFILE).bip proj.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip proj.bil
 
-revolv_ui.c + revolv_ui.h + revolv_stubs.c: $(PROJFILE).bip revolv.bil
+revolv_ui.c + revolv_ui.h + revolv_stubs.c: $(PROJFILE).bip revolv.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip revolv.bil
 
-scale_ui.c + scale_ui.h + scale_stubs.c: $(PROJFILE).bip scale.bil
+scale_ui.c + scale_ui.h + scale_stubs.c: $(PROJFILE).bip scale.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip scale.bil
 
-sep_ui.c + sep_ui.h + sep_stubs.c: $(PROJFILE).bip sep.bil
+sep_ui.c + sep_ui.h + sep_stubs.c: $(PROJFILE).bip sep.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip sep.bil
 
-spinbox_ui.c + spinbox_ui.h + spinbox_stubs.c: $(PROJFILE).bip spinbox.bil
+spinbox_ui.c + spinbox_ui.h + spinbox_stubs.c: $(PROJFILE).bip spinbox.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip spinbox.bil
 
-termp_ui.c + termp_ui.h + termp_stubs.c: $(PROJFILE).bip termp.bil
+termp_ui.c + termp_ui.h + termp_stubs.c: $(PROJFILE).bip termp.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip termp.bil
 
-textf_ui.c + textf_ui.h + textf_stubs.c: $(PROJFILE).bip textf.bil
+textf_ui.c + textf_ui.h + textf_stubs.c: $(PROJFILE).bip textf.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip textf.bil
 
-textp_ui.c + textp_ui.h + textp_stubs.c: $(PROJFILE).bip textp.bil
+textp_ui.c + textp_ui.h + textp_stubs.c: $(PROJFILE).bip textp.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip textp.bil
 
 else
 
-dtbuilder.h dtb_utils.c dtb_utils.h: dtbuilder.bip |dtbuilder.c dtbuilder.msg
+dtbuilder.h dtb_utils.c dtb_utils.h: dtbuilder.bip $(DTCODEGEN_PREREQS) |dtbuilder.c dtbuilder.msg
 	$(DTCODEGEN) -changed -merge -p dtbuilder.bip -main
 
 PROJFILE = dtbuilder
 
-about_box_ui.c about_box_ui.h about_box_stubs.c: $(PROJFILE).bip about_box.bil
+about_box_ui.c about_box_ui.h about_box_stubs.c: $(PROJFILE).bip about_box.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip about_box.bil
 
-appfw_ui.c appfw_ui.h appfw_stubs.c: $(PROJFILE).bip appfw.bil
+appfw_ui.c appfw_ui.h appfw_stubs.c: $(PROJFILE).bip appfw.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip appfw.bil
 
-attch_ed_ui.c attch_ed_ui.h attch_ed_stubs.c: $(PROJFILE).bip attch_ed.bil
+attch_ed_ui.c attch_ed_ui.h attch_ed_stubs.c: $(PROJFILE).bip attch_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip attch_ed.bil
 
-brws_ui.c brws_ui.h brws_stubs.c: $(PROJFILE).bip brws.bil
+brws_ui.c brws_ui.h brws_stubs.c: $(PROJFILE).bip brws.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip brws.bil
 
-button_ui.c button_ui.h button_stubs.c: $(PROJFILE).bip button.bil
+button_ui.c button_ui.h button_stubs.c: $(PROJFILE).bip button.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip button.bil
 
-cgen_env_ui.c cgen_env_ui.h cgen_env_stubs.c: $(PROJFILE).bip cgen_env.bil
+cgen_env_ui.c cgen_env_ui.h cgen_env_stubs.c: $(PROJFILE).bip cgen_env.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cgen_env.bil
 
-cgen_props_ui.c cgen_props_ui.h cgen_props_stubs.c: $(PROJFILE).bip cgen_props.bil
+cgen_props_ui.c cgen_props_ui.h cgen_props_stubs.c: $(PROJFILE).bip cgen_props.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cgen_props.bil
 
-cgen_win_ui.c cgen_win_ui.h cgen_win_stubs.c: $(PROJFILE).bip cgen_win.bil
+cgen_win_ui.c cgen_win_ui.h cgen_win_stubs.c: $(PROJFILE).bip cgen_win.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cgen_win.bil
 
-choice_ui.c choice_ui.h choice_stubs.c: $(PROJFILE).bip choice.bil
+choice_ui.c choice_ui.h choice_stubs.c: $(PROJFILE).bip choice.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip choice.bil
 
-color_chooser_ui.c color_chooser_ui.h color_chooser_stubs.c: $(PROJFILE).bip color_chooser.bil
+color_chooser_ui.c color_chooser_ui.h color_chooser_stubs.c: $(PROJFILE).bip color_chooser.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip color_chooser.bil
 
-combobox_ui.c combobox_ui.h combobox_stubs.c: $(PROJFILE).bip combobox.bil
+combobox_ui.c combobox_ui.h combobox_stubs.c: $(PROJFILE).bip combobox.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip combobox.bil
 
-conn_ui.c conn_ui.h conn_stubs.c: $(PROJFILE).bip conn.bil
+conn_ui.c conn_ui.h conn_stubs.c: $(PROJFILE).bip conn.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip conn.bil
 
-cpanel_ui.c cpanel_ui.h cpanel_stubs.c: $(PROJFILE).bip cpanel.bil
+cpanel_ui.c cpanel_ui.h cpanel_stubs.c: $(PROJFILE).bip cpanel.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip cpanel.bil
 
-custdlg_ui.c custdlg_ui.h custdlg_stubs.c: $(PROJFILE).bip custdlg.bil
+custdlg_ui.c custdlg_ui.h custdlg_stubs.c: $(PROJFILE).bip custdlg.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip custdlg.bil
 
-dnd_ed_ui.c dnd_ed_ui.h dnd_ed_stubs.c: $(PROJFILE).bip dnd_ed.bil
+dnd_ed_ui.c dnd_ed_ui.h dnd_ed_stubs.c: $(PROJFILE).bip dnd_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip dnd_ed.bil
 
-drawp_ui.c drawp_ui.h drawp_stubs.c: $(PROJFILE).bip drawp.bil
+drawp_ui.c drawp_ui.h drawp_stubs.c: $(PROJFILE).bip drawp.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip drawp.bil
 
-fchooser_ui.c fchooser_ui.h fchooser_stubs.c: $(PROJFILE).bip fchooser.bil
+fchooser_ui.c fchooser_ui.h fchooser_stubs.c: $(PROJFILE).bip fchooser.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip fchooser.bil
 
-group_ui.c group_ui.h group_stubs.c: $(PROJFILE).bip group.bil
+group_ui.c group_ui.h group_stubs.c: $(PROJFILE).bip group.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip group.bil
 
-help_ed_ui.c help_ed_ui.h help_ed_stubs.c: $(PROJFILE).bip help_ed.bil
+help_ed_ui.c help_ed_ui.h help_ed_stubs.c: $(PROJFILE).bip help_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip help_ed.bil
 
-label_ui.c label_ui.h label_stubs.c: $(PROJFILE).bip label.bil
+label_ui.c label_ui.h label_stubs.c: $(PROJFILE).bip label.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip label.bil
 
-list_ui.c list_ui.h list_stubs.c: $(PROJFILE).bip list.bil
+list_ui.c list_ui.h list_stubs.c: $(PROJFILE).bip list.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip list.bil
 
-mainwin_ui.c mainwin_ui.h mainwin_stubs.c: $(PROJFILE).bip mainwin.bil
+mainwin_ui.c mainwin_ui.h mainwin_stubs.c: $(PROJFILE).bip mainwin.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip mainwin.bil
 
-menu_ui.c menu_ui.h menu_stubs.c: $(PROJFILE).bip menu.bil
+menu_ui.c menu_ui.h menu_stubs.c: $(PROJFILE).bip menu.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip menu.bil
 
-menubar_ui.c menubar_ui.h menubar_stubs.c: $(PROJFILE).bip menubar.bil
+menubar_ui.c menubar_ui.h menubar_stubs.c: $(PROJFILE).bip menubar.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip menubar.bil
 
-message_ed_ui.c message_ed_ui.h message_ed_stubs.c: $(PROJFILE).bip message_ed.bil
+message_ed_ui.c message_ed_ui.h message_ed_stubs.c: $(PROJFILE).bip message_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip message_ed.bil
 
-palette_ui.c palette_ui.h palette_stubs.c: $(PROJFILE).bip palette.bil
+palette_ui.c palette_ui.h palette_stubs.c: $(PROJFILE).bip palette.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip palette.bil
 
-panedwin_ed_ui.c panedwin_ed_ui.h panedwin_ed_stubs.c: $(PROJFILE).bip panedwin_ed.bil
+panedwin_ed_ui.c panedwin_ed_ui.h panedwin_ed_stubs.c: $(PROJFILE).bip panedwin_ed.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip panedwin_ed.bil
 
-proj_ui.c proj_ui.h proj_stubs.c: $(PROJFILE).bip proj.bil
+proj_ui.c proj_ui.h proj_stubs.c: $(PROJFILE).bip proj.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip proj.bil
 
-revolv_ui.c revolv_ui.h revolv_stubs.c: $(PROJFILE).bip revolv.bil
+revolv_ui.c revolv_ui.h revolv_stubs.c: $(PROJFILE).bip revolv.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip revolv.bil
 
-scale_ui.c scale_ui.h scale_stubs.c: $(PROJFILE).bip scale.bil
+scale_ui.c scale_ui.h scale_stubs.c: $(PROJFILE).bip scale.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip scale.bil
 
-sep_ui.c sep_ui.h sep_stubs.c: $(PROJFILE).bip sep.bil
+sep_ui.c sep_ui.h sep_stubs.c: $(PROJFILE).bip sep.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip sep.bil
 
-spinbox_ui.c spinbox_ui.h spinbox_stubs.c: $(PROJFILE).bip spinbox.bil
+spinbox_ui.c spinbox_ui.h spinbox_stubs.c: $(PROJFILE).bip spinbox.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip spinbox.bil
 
-termp_ui.c termp_ui.h termp_stubs.c: $(PROJFILE).bip termp.bil
+termp_ui.c termp_ui.h termp_stubs.c: $(PROJFILE).bip termp.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip termp.bil
 
-textf_ui.c textf_ui.h textf_stubs.c: $(PROJFILE).bip textf.bil
+textf_ui.c textf_ui.h textf_stubs.c: $(PROJFILE).bip textf.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip textf.bil
 
-textp_ui.c textp_ui.h textp_stubs.c: $(PROJFILE).bip textp.bil
+textp_ui.c textp_ui.h textp_stubs.c: $(PROJFILE).bip textp.bil $(DTCODEGEN_PREREQS)
 	$(DTCODEGEN) -changed -merge -p $(PROJFILE).bip textp.bil
 endif
