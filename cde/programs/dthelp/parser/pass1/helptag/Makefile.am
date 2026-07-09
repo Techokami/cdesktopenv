@@ -17,8 +17,13 @@ HELPIFFILE    = $(HELPTAGSRC)/help.if
 HELPTSSFILE   = $(HELPTAGSRC)/htag.tss
 
 XDONE:
-	cd ../parser; $(MAKE) CDONE
+	$(MAKE) -C $(HELPUTILSRC) context
+	$(MAKE) -C $(HELPPARSERSRC) CDONE
 	touch XDONE
+
+../parser/delim.h: XDONE
+
+tags-am ctags-am cscopelist-am: ../parser/delim.h
 
 BUILT_SOURCES = XDONE
 CLEANFILES = $(BUILT_SOURCES)
