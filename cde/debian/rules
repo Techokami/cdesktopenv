@@ -7,7 +7,7 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 override_dh_auto_configure:
 	./autogen.sh
-	dh_auto_configure -- --prefix=/usr
+	dh_auto_configure -- --prefix=/usr --bindir=/usr/bin
 
 override_dh_auto_build:
 	dh_auto_build
