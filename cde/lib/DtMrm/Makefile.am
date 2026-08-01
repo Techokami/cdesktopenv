@@ -2,8 +2,14 @@ MAINTAINERCLEANFILES = Makefile.in
 
 lib_LTLIBRARIES = libDtMrm.la
 
-libDtMrm_la_CFLAGS = -I../DtTerm/Term -I../DtTerm/TermPrim -I../DtHelp \
-		     @DT_INCDIR@ @DTI_INCDIR@
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/include \
+	-I$(top_srcdir)/include/DtI \
+	-I$(top_srcdir)/lib/DtTerm/Term \
+	-I$(top_srcdir)/lib/DtTerm/TermPrim \
+	-I$(top_srcdir)/lib/DtHelp
+
+libDtMrm_la_CFLAGS = @DT_INCDIR@ @DTI_INCDIR@
 
 libDtMrm_la_SOURCES = DtMrm.c
 
