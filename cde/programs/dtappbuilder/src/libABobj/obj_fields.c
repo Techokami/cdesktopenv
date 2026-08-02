@@ -2795,6 +2795,9 @@ obj_set_arg_type(ABObj obj, AB_ARG_TYPE arg_type)
     case AB_ARG_STRING:
 	obj->info.action.arg_value.sval = NULL;
 	break;
+
+    default:
+	break;
     }
     return 0;
 }
