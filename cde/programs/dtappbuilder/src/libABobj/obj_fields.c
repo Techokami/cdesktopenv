@@ -161,6 +161,8 @@ obj_set_hscrollbar_policy(ABObj obj, AB_SCROLLBAR_POLICY hscrollbar)
     case AB_TYPE_TEXT_PANE:
 	obj->info.text.hscrollbar = hscrollbar;
 	break;
+    default:
+    	break;
     }
 
     return 0;
@@ -178,6 +180,8 @@ obj_has_border(ABObj obj)
 
     case AB_TYPE_TEXT_FIELD:
 	return obj->info.text.has_border;
+    default:
+    	break;
     }
     return FALSE;
 }
@@ -570,6 +574,8 @@ obj_set_num_columns(ABObj obj, int num_columns)
         old_num_cols = obj->info.term.num_columns; 
 	obj->info.term.num_columns = num_columns;
 	iRet = 0;
+    default:
+    	break;
     }
     if (obj_is_text(obj))
     {
@@ -601,6 +607,8 @@ obj_get_num_columns(ABObj obj)
 
     case AB_TYPE_TERM_PANE:
 	return obj->info.term.num_columns;
+    default:
+    	break;
     }
     if (obj_is_text(obj))
     {
@@ -634,6 +642,8 @@ obj_set_num_rows(ABObj obj, int num_rows)
 	obj->info.term.num_rows = num_rows;
 	iRet = 0;
 	break;
+    default:
+    	break;
     }
     if (obj_is_text(obj))
     {
@@ -663,6 +673,8 @@ obj_get_num_rows(ABObj obj)
 	return obj->info.list.num_rows;
     case AB_TYPE_TERM_PANE:
 	return obj->info.term.num_rows;
+    default:
+    	break;
     }
     if (obj_is_text(obj))
     {
@@ -688,6 +700,8 @@ obj_set_orientation(ABObj obj, AB_ORIENTATION orientation)
     case AB_TYPE_CHOICE:
 	obj->info.choice.orientation = orientation;
 	return 0;
+    default:
+    	break;
     }
     member_error(obj, "orientation");
     return -1;
@@ -708,6 +722,8 @@ obj_get_orientation(ABObj obj)
 
     case AB_TYPE_CHOICE:
 	return obj->info.choice.orientation;
+    default:
+    	break;
     }
     return AB_ORIENT_HORIZONTAL;
 }
@@ -761,6 +777,8 @@ obj_set_label_alignment(ABObj obj, AB_ALIGNMENT type)
     case AB_TYPE_LABEL:
 	obj->info.label.label_alignment = type;
 	return 0;
+    default:
+    	break;
     }
     member_error(obj, "label_alignment");
     return -1;
@@ -778,6 +796,8 @@ obj_get_label_alignment(ABObj obj)
 
     case AB_TYPE_LABEL:
 	return (obj->info.label.label_alignment);
+    default:
+    	break;
     }
     return (AB_ALIGNMENT) - 1;
 
@@ -808,6 +828,8 @@ obj_set_label_position(ABObj obj, AB_COMPASS_POINT pos)
     case AB_TYPE_SPIN_BOX:
 	obj->info.spin_box.label_position = pos;
 	return 0;
+    default:
+    	break;
     }
     member_error(obj, "label_position");
     return -1;
@@ -838,6 +860,8 @@ obj_get_label_position(ABObj obj)
 
     case AB_TYPE_SPIN_BOX:
 	return (obj->info.spin_box.label_position);
+    default:
+    	break;
     }
     return (AB_COMPASS_POINT) - 1;
 
@@ -1123,6 +1147,8 @@ obj_set_resizable(ABObj obj, BOOL resizable)
     case AB_TYPE_DIALOG:
 	obj->info.window.resizable = resizable;
 	return 0;
+    default:
+    	break;
     }
     member_error(obj, "resizable");
     return -1;
@@ -1138,6 +1164,8 @@ obj_get_resizable(ABObj obj)
     case AB_TYPE_BASE_WINDOW:
     case AB_TYPE_DIALOG:
 	return obj->info.window.resizable;
+    default:
+    	break;
     }
     return TRUE;
 }
@@ -1204,6 +1232,8 @@ obj_get_selection_required(ABObj obj)
     case AB_TYPE_LIST:
 	bRet = obj->info.list.selection_required;
 	break;
+    default:
+    	break;
     }
     return bRet;
 }
@@ -1515,6 +1545,8 @@ obj_set_vscrollbar_policy(ABObj obj, AB_SCROLLBAR_POLICY vscrollbar)
     case AB_TYPE_TERM_PANE:
 	obj->info.term.vscrollbar = vscrollbar;
 	break;
+    default:
+    	break;
     }
 
     return 0;
@@ -1529,6 +1561,8 @@ obj_set_tearoff(ABObj obj, BOOL tearoff)
     case AB_TYPE_MENU:
 	obj->info.menu.tear_off = tearoff;
 	return 0;
+    default:
+    	break;
     }
     member_error(obj, "tear_off");
     return -1;
@@ -2160,6 +2194,8 @@ obj_get_hscrollbar_policy(ABObj obj)
 	return (obj->info.drawing_area.hscrollbar);
     case AB_TYPE_TEXT_PANE:
 	return (obj->info.text.hscrollbar);
+    default:
+    	break;
     }
     return AB_SCROLLBAR_UNDEF;
 }
@@ -2178,6 +2214,8 @@ obj_get_vscrollbar_policy(ABObj obj)
 	return (obj->info.text.vscrollbar);
     case AB_TYPE_TERM_PANE:
 	return (obj->info.term.vscrollbar);
+    default:
+    	break;
     }
     return AB_SCROLLBAR_UNDEF;
 }
@@ -2234,6 +2272,8 @@ obj_set_initial_value_int(ABObj obj, int ival)
     case AB_TYPE_TEXT_PANE:
 	obj->info.text.initial_value_int = ival;
 	break;
+    default:
+    	break;
     }
     return (0);
 }
@@ -2251,6 +2291,8 @@ obj_get_initial_value_int(ABObj obj)
     case AB_TYPE_TEXT_FIELD:
     case AB_TYPE_TEXT_PANE:
 	return (obj->info.text.initial_value_int);
+    default:
+    	break;
     }
     return (0);
 }
@@ -3303,6 +3345,8 @@ obj_set_line_style(ABObj obj, AB_LINE_TYPE line_style)
     case AB_TYPE_ITEM:
 	obj->info.item.line_style = line_style;
 	return 0;
+    default:
+    	break;
     }
     member_error(obj, "line_style");
     return -1;
@@ -3336,6 +3380,8 @@ obj_set_arrow_style(ABObj obj, AB_ARROW_STYLE arrow_style)
     case AB_TYPE_SPIN_BOX:
 	obj->info.spin_box.arrow_style = arrow_style;
 	return 0;
+    default:
+    	break;
     }
     member_error(obj, "arrow_style");
     return -1;
