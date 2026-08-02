@@ -52,20 +52,6 @@
 #include <ab_private/util.h>
 
 /*
- * This function verifies the integrity of the object, and is called at the
- * beginning of each field access, when debugging
- */
-static int          verify_for_write(ABObj obj);
-static int          verify_for_read(ABObj obj);
-
-/*
- * If a bad field (member) access is attempted, use member_error() to report
- * the error. E.g.: member_error(obj, "bg_color"). It's automatically removed
- * from non-debugging builds.
- */
-static int          member_error(ABObj obj, STRING member_name);
-
-/*
  * Define our local debugging routines
  */
 #ifdef DEBUG
