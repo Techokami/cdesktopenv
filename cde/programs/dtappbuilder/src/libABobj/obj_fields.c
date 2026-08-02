@@ -3089,6 +3089,8 @@ obj_set_attach_type(
     case AB_CP_EAST:
 	obj->attachments->east.type = type;
 	break;
+    default:
+    	break;
     }
     return 0;
 }
@@ -3118,6 +3120,8 @@ obj_set_attach_value(
     case AB_CP_EAST:
 	obj->attachments->east.value = value;
 	break;
+    default:
+    	break;
     }
     return 0;
 }
@@ -3147,6 +3151,8 @@ obj_set_attach_offset(
     case AB_CP_EAST:
 	obj->attachments->east.offset = offset;
 	break;
+    default:
+    	break;
     }
     return 0;
 }
