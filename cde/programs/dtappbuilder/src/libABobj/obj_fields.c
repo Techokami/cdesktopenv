@@ -2048,8 +2048,6 @@ obj_get_default_act_button(
     ABObj obj
 )
 {
-    ABObj               defaultb = NULL;
- 
     if (!obj_is_window(obj))
         return NULL;
  
@@ -3191,8 +3189,6 @@ obj_get_help_act_button(
     ABObj obj
 )
 {
-    ABObj               defaultb = NULL;
- 
     if (!obj_is_window(obj))
         return NULL;
 
@@ -3507,8 +3503,6 @@ verify_for_write_impl(ABObj obj, STRING file, int line)
 static int
 member_error_impl(ABObj obj, STRING member_name, STRING file, int line)
 {
-    char                obj_name[256];
-
     /*
      * We "use" fields that are illegal for objects regularly, and just
      * ignore the objects that return errors.
@@ -4067,7 +4061,6 @@ obj_get_i18n_enabled( ABObj obj)
 int
 obj_get_num_win_children( ABObj obj)
 {
-    ABObj       	refObj = NULL;
     AB_OBJ_REF_TYPE	refType = AB_REF_UNDEF;
     ABObjList		refs = NULL;
     void        	*voidRefType = NULL;
@@ -4083,7 +4076,7 @@ obj_get_num_win_children( ABObj obj)
 	numRefs = objlist_get_num_objs(refs);
 	for (i = 0; i < numRefs; i++)
 	{
-	    refObj = objlist_get_obj(refs, i, &voidRefType);
+	    objlist_get_obj(refs, i, &voidRefType);
 	    refType = (AB_OBJ_REF_TYPE)voidRefType;
 
 	    if (refType == AB_REF_WIN_PARENT)
