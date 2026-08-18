@@ -1,0 +1,548 @@
+name: CDE package CI - /usr/dt manual installation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cde-source-install-noble-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-install:
+    name: Build and install CDE from Git source on Ubuntu 24.04
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    env:
+      DEBIAN_FRONTEND: noninteractive
+
+    steps:
+      - name: Define source clone path
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          printf 'SOURCE_TREE=%s\n' \
+            "$RUNNER_TEMP/cdesktopenv-code" \
+            >> "$GITHUB_ENV"
+
+      #
+      # This checkout is only the CI seed repository.
+      #
+      # For pull requests, deliberately use the PR branch tip rather than
+      # GitHub's synthetic pull-request merge commit.  The source-install
+      # test is intended to represent what a user would obtain from Git.
+      #
+      - name: Check out exact commit under test
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Show CI seed repository
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          echo "=== operating system ==="
+          cat /etc/os-release
+
+          echo
+          echo "=== architecture ==="
+          dpkg --print-architecture
+
+          echo
+          echo "=== kernel ==="
+          uname -a
+
+          echo
+          echo "=== CPUs ==="
+          nproc
+
+          echo
+          echo "=== commit under test ==="
+          git show \
+            --no-patch \
+            --format='commit:    %H%nauthor:    %an <%ae>%nauthor date: %aI%nsubject:   %s' \
+            HEAD
+
+          echo
+          echo "=== repository status ==="
+          git status --short --branch
+
+      #
+      # Re-clone the repository inside the runner.
+      #
+      # --no-local is intentional.  Git otherwise optimizes clones from a
+      # local filesystem repository.  Forcing the normal clone machinery
+      # gives us an independent .git object database and a much closer
+      # approximation of cloning the project over the network.
+      #
+      - name: Simulate a fresh Git clone
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          target_sha="$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)"
+
+          rm -rf "$SOURCE_TREE"
+
+          git clone \
+            --no-local \
+            --no-checkout \
+            "$GITHUB_WORKSPACE" \
+            "$SOURCE_TREE"
+
+          git -C "$SOURCE_TREE" \
+            checkout \
+            --detach \
+            "$target_sha"
+
+          echo "=== simulated user clone ==="
+          echo "directory: $SOURCE_TREE"
+
+          echo
+          echo "=== cloned commit ==="
+          git -C "$SOURCE_TREE" show \
+            --no-patch \
+            --format='commit:    %H%nauthor:    %an <%ae>%nauthor date: %aI%nsubject:   %s' \
+            HEAD
+
+          echo
+          echo "=== Git metadata ==="
+          test -d "$SOURCE_TREE/.git"
+          git -C "$SOURCE_TREE" status --short --branch
+
+          echo
+          echo "=== verify exact source tree ==="
+
+          seed_tree="$(
+            git -C "$GITHUB_WORKSPACE" \
+              rev-parse 'HEAD^{tree}'
+          )"
+
+          clone_tree="$(
+            git -C "$SOURCE_TREE" \
+              rev-parse 'HEAD^{tree}'
+          )"
+
+          printf 'CI seed tree: %s\n' "$seed_tree"
+          printf 'user clone:   %s\n' "$clone_tree"
+
+          test "$seed_tree" = "$clone_tree"
+
+          if test -n "$(git -C "$SOURCE_TREE" status --porcelain)"; then
+              echo "ERROR: fresh simulated clone is not clean" >&2
+              git -C "$SOURCE_TREE" status --short >&2
+              exit 1
+          fi
+
+      #
+      # Install prerequisites explicitly, like a user preparing an Ubuntu
+      # machine to build CDE.  Do not consume debian/control or use any
+      # Debian package-building machinery here.
+      #
+      - name: Install CDE source-build prerequisites
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          sudo apt-get \
+            -o Acquire::Retries=3 \
+            update
+
+          sudo apt-get \
+            -o Acquire::Retries=3 \
+            install -y \
+            --no-install-recommends \
+            autoconf \
+            automake \
+            bison \
+            build-essential \
+            file \
+            flex \
+            g++ \
+            git \
+            ksh \
+            libfreetype6-dev \
+            libjpeg-dev \
+            liblmdb-dev \
+            libmotif-dev \
+            libpam0g-dev \
+            libssl-dev \
+            libtirpc-dev \
+            libtool \
+            libutempter-dev \
+            libx11-dev \
+            libxaw7-dev \
+            libxft-dev \
+            libxinerama-dev \
+            libxmu-dev \
+            libxpm-dev \
+            libxrender-dev \
+            libxss-dev \
+            libxt-dev \
+            locales \
+            m4 \
+            ncompress \
+            opensp \
+            patch \
+            rpcbind \
+            tcl-dev \
+            x11-xserver-utils \
+            x11proto-fonts-dev \
+            xbitmaps \
+            xfonts-100dpi \
+            xfonts-100dpi-transcoded \
+            xfonts-75dpi \
+            xfonts-75dpi-transcoded
+
+      #
+      # CDE 2.5.x requires en_US.UTF-8 to be available during the build.
+      #
+      - name: Prepare required CDE locale
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          sudo locale-gen en_US.UTF-8
+
+          echo "=== available en_US locales ==="
+          locale -a | grep -i '^en_US'
+
+          if ! locale -a | grep -Eiq '^en_US[.]utf-?8$'; then
+              echo "ERROR: en_US.UTF-8 locale was not generated" >&2
+              exit 1
+          fi
+
+          {
+              echo 'LANG=en_US.UTF-8'
+              echo 'LC_ALL=en_US.UTF-8'
+          } >> "$GITHUB_ENV"
+
+      #
+      # A clean GitHub runner should not already contain a CDE installation.
+      # This ensures that everything under /usr/dt comes from this test.
+      #
+      - name: Verify clean pre-install state
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          if test -e /usr/dt; then
+              echo "ERROR: /usr/dt already exists before CDE installation" >&2
+              sudo find /usr/dt -maxdepth 2 -print >&2
+              exit 1
+          fi
+
+          echo "/usr/dt does not exist: clean installation target confirmed"
+
+      #
+      # From here onward, deliberately follow the normal upstream source
+      # installation procedure.  No package build, DESTDIR, staging root,
+      # or custom installation prefix is used.
+      #
+      - name: Bootstrap source tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          cd "$SOURCE_TREE/cde"
+
+          ./autogen.sh
+
+      - name: Configure CDE
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          cd "$SOURCE_TREE/cde"
+
+          ./configure
+
+      - name: Build CDE
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          cd "$SOURCE_TREE/cde"
+
+          make -j"$(nproc)"
+
+      #
+      # This is the essential part of this workflow:
+      #
+      #     sudo make install
+      #
+      # It installs directly into the runner VM exactly as a local source
+      # installation would.  There is intentionally no DESTDIR.
+      #
+      - name: Install CDE directly from source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          cd "$SOURCE_TREE/cde"
+
+          sudo make install
+
+      - name: Verify source installation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          echo "=== installation root ==="
+
+          if ! test -d /usr/dt; then
+              echo "ERROR: /usr/dt was not created" >&2
+              exit 1
+          fi
+
+          ls -ld /usr/dt
+
+          echo
+          echo "=== critical installed programs ==="
+
+          programs=(
+              /usr/dt/bin/dtwm
+              /usr/dt/bin/dtsession
+              /usr/dt/bin/dtterm
+          )
+
+          for program in "${programs[@]}"; do
+              if ! test -x "$program"; then
+                  echo "ERROR: expected executable is missing: $program" >&2
+                  exit 1
+              fi
+
+              ls -l "$program"
+          done
+
+          echo
+          echo "=== critical installation directories ==="
+
+          directories=(
+              /usr/dt/bin
+              /usr/dt/lib
+              /usr/dt/appconfig
+          )
+
+          for directory in "${directories[@]}"; do
+              if ! test -d "$directory"; then
+                  echo "ERROR: expected directory is missing: $directory" >&2
+                  exit 1
+              fi
+
+              ls -ld "$directory"
+          done
+
+          echo
+          echo "=== verify every installed command ==="
+
+          command_count=0
+
+          while IFS= read -r -d '' program; do
+              ((command_count += 1))
+
+              if ! test -x "$program"; then
+                  echo "ERROR: installed command is not executable: $program" >&2
+                  ls -l "$program" >&2 || true
+                  exit 1
+              fi
+          done < <(
+              find /usr/dt/bin \
+                -mindepth 1 \
+                -maxdepth 1 \
+                \( -type f -o -type l \) \
+                -print0
+          )
+
+          if ((command_count == 0)); then
+              echo "ERROR: no commands were installed under /usr/dt/bin" >&2
+              exit 1
+          fi
+
+          printf 'commands checked: %d\n' "$command_count"
+
+          echo
+          echo "=== verify every installed executable file ==="
+
+          executable_count=0
+
+          while IFS= read -r -d '' executable; do
+              ((executable_count += 1))
+
+              if ! test -x "$executable"; then
+                  echo "ERROR: installed executable is not executable: $executable" >&2
+                  ls -l "$executable" >&2 || true
+                  exit 1
+              fi
+          done < <(
+              find /usr/dt \
+                -type f \
+                -perm /111 \
+                -print0
+          )
+
+          if ((executable_count == 0)); then
+              echo "ERROR: no executable files found under /usr/dt" >&2
+              exit 1
+          fi
+
+          printf 'executable files checked: %d\n' "$executable_count"
+
+          echo
+          echo "=== verify installed ELF runtime dependencies ==="
+
+          elf_count=0
+
+          while IFS= read -r -d '' candidate; do
+              if ! file -b "$candidate" | grep -q '^ELF '; then
+                  continue
+              fi
+
+              ((elf_count += 1))
+
+              echo
+              echo "--- $candidate ---"
+
+              dependencies="$(ldd "$candidate" 2>&1 || true)"
+              printf '%s\n' "$dependencies"
+
+              if grep -q '=> not found' <<<"$dependencies"; then
+                  echo "ERROR: unresolved runtime dependency: $candidate" >&2
+                  exit 1
+              fi
+          done < <(
+              find /usr/dt \
+                -type f \
+                -print0
+          )
+
+          if ((elf_count == 0)); then
+              echo "ERROR: no ELF files found under /usr/dt" >&2
+              exit 1
+          fi
+
+          printf '\nELF files checked: %d\n' "$elf_count"
+
+          echo
+          echo "=== verify every installed directory ==="
+
+          directory_count=0
+
+          while IFS= read -r -d '' directory; do
+              ((directory_count += 1))
+
+              if ! test -x "$directory"; then
+                  echo "ERROR: installed directory is not searchable: $directory" >&2
+                  ls -ld "$directory" >&2 || true
+                  exit 1
+              fi
+          done < <(
+              find /usr/dt \
+                -type d \
+                -print0
+          )
+
+          if ((directory_count == 0)); then
+              echo "ERROR: no directories found under /usr/dt" >&2
+              exit 1
+          fi
+
+          printf 'directories checked: %d\n' "$directory_count"
+
+          echo
+          echo "=== verify every installed symbolic link ==="
+
+          symlink_count=0
+
+          while IFS= read -r -d '' link; do
+              ((symlink_count += 1))
+
+              if ! test -e "$link"; then
+                  printf 'ERROR: broken symbolic link: %s -> %s\n' \
+                    "$link" \
+                    "$(readlink "$link")" \
+                    >&2
+                  exit 1
+              fi
+          done < <(
+              find /usr/dt \
+                -type l \
+                -print0
+          )
+
+          printf 'symbolic links checked: %d\n' "$symlink_count"
+
+          echo
+          echo "=== installed commands ==="
+
+          find /usr/dt/bin \
+            -mindepth 1 \
+            -maxdepth 1 \
+            -printf '%f\n' \
+            | LC_ALL=C sort
+
+          echo
+          echo "=== installed directories ==="
+
+          find /usr/dt \
+            -type d \
+            -printf '%p\n' \
+            | LC_ALL=C sort
+
+          echo
+          echo "=== installed executable regular files ==="
+
+          find /usr/dt \
+            -type f \
+            -perm /111 \
+            -printf '%p\n' \
+            | LC_ALL=C sort
+
+          echo
+          echo "=== installation statistics ==="
+
+          printf 'commands:       %d\n' "$command_count"
+          printf 'executables:    %d\n' "$executable_count"
+          printf 'ELF files:      %d\n' "$elf_count"
+          printf 'directories:    %d\n' "$directory_count"
+          printf 'symbolic links: %d\n' "$symlink_count"
+
+          printf 'regular files:  '
+          find /usr/dt -type f -printf '.' |
+              wc -c
+
+          echo
+          echo "=== installed tree size ==="
+
+          sudo du -sh /usr/dt
+
+          echo
+          echo "=== installation tree, two levels deep ==="
+
+          sudo find /usr/dt \
+            -mindepth 1 \
+            -maxdepth 2 \
+            -printf '%M %u:%g %p\n' \
+            | LC_ALL=C sort
+
+          echo
+          echo "=== file(1) inventory of installed files and symbolic links ==="
+
+          while IFS= read -r -d '' pathname; do
+              file -- "$pathname"
+          done < <(
+              find /usr/dt \
+                \( -type f -o -type l \) \
+                -print0 \
+                | LC_ALL=C sort -z
+          )
