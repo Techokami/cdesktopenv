@@ -19,6 +19,7 @@ jobs:
 
     env:
       DEBIAN_FRONTEND: noninteractive
+      IFFEFLAGS: -d1
 
     steps:
       - name: Bootstrap Debian 13 container
