@@ -59,7 +59,7 @@ dtksh_SOURCES = init.c \
                 msgs.c
 
 ksh93/bin/ksh:
-	ksh93/bin/package flat make CCFLAGS='$(KSH93_SHOPTS)'
+	ksh93/bin/package flat make CCFLAGS='$(CFLAGS) $(KSH93_SHOPTS)'
 
 init.c: ksh93/bin/ksh
 	$(CP) ksh93/src/cmd/ksh93/sh/init.c ./
