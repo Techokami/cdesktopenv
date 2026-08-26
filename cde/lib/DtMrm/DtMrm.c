@@ -119,6 +119,13 @@ static char rcsid[] = "$TOG: DtMrm.c /main/4 1999/10/14 13:35:44 mgreess $"
 #define _MrmProcessUnlock()
 #endif /* XTHREADS */
 
+/*******    Macros for C23 compatability ******/
+#if XmVersion < 2004
+#define MRMCREATE(x) ((Widget (*)())(x))
+#else
+#define MRMCREATE(x) x
+#endif
+
 /*
  *
  *  TABLE OF CONTENTS
@@ -181,43 +188,43 @@ void DtMrmInitialize (void)
      */
     MrmRegisterClass(
 		0, NULL,
-		"DtCreateEditor", (Widget (*)()) DtCreateEditor,
+		"DtCreateEditor", MRMCREATE(DtCreateEditor),
         	(WidgetClass) &dtEditorClassRec
 		);
 
     MrmRegisterClass(
 		0, NULL,
-		"DtCreateHelpDialog", (Widget (*)()) DtCreateHelpDialog,
+		"DtCreateHelpDialog", MRMCREATE(DtCreateHelpDialog),
         	(WidgetClass) &dtHelpDialogWidgetClassRec
 		);
 
     MrmRegisterClass(
 		0, NULL,
-		"DtCreateHelpQuickDialog", (Widget (*)()) DtCreateHelpQuickDialog,
+		"DtCreateHelpQuickDialog", MRMCREATE(DtCreateHelpQuickDialog),
         	(WidgetClass) &dtHelpQuickDialogWidgetClassRec
 		);
 
     MrmRegisterClass(
 		0, NULL,
-		"DtCreateMenuButton", (Widget (*)()) DtCreateMenuButton,
+		"DtCreateMenuButton", MRMCREATE(DtCreateMenuButton),
         	(WidgetClass) &dtMenuButtonClassRec
 		);
 
     MrmRegisterClass(
 		0, NULL,
-		"DtCreatePrintSetupBox", (Widget (*)()) DtCreatePrintSetupBox,
+		"DtCreatePrintSetupBox", MRMCREATE(DtCreatePrintSetupBox),
         	(WidgetClass) &dtPrintSetupBoxClassRec
 		);
 
     MrmRegisterClass(
 		0, NULL,
-		"DtCreatePrintSetupDialog", (Widget (*)()) DtCreatePrintSetupDialog,
+		"DtCreatePrintSetupDialog", MRMCREATE(DtCreatePrintSetupDialog),
         	(WidgetClass) &dtPrintSetupBoxClassRec
 		);
 
     MrmRegisterClass(
 		0, NULL,
-		"DtCreateTerm", (Widget (*)()) DtCreateTerm,
+		"DtCreateTerm", MRMCREATE(DtCreateTerm),
         	(WidgetClass) &dtTermClassRec
 		);
 

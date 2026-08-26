@@ -55,6 +55,7 @@
 
 #include "abuil_loadP.h"
 
+#if XmVersion < 2004
 /*
  * There is no public header file for this function (only an
  * internal header XmStringI.h).
@@ -63,9 +64,17 @@ extern XtPointer _XmStringUngenerate (XmString string,
                         XmStringTag tag,
                         XmTextType tag_type,
                         XmTextType output_type);
+#define XmStringUngenerate _XmStringUngenerate
+#endif
 
 
 typedef Uil_continue_type(*UIL_CB)();
+
+/***** Macro for supporting newer versions of Motif *****/
+#if XmVersion < 2004
+typedef Uil_continue_type (*uil_message_cb_t)();
+typedef Uil_continue_type (*uil_status_cb_t)();
+#endif
 
 
 /*
@@ -995,7 +1004,7 @@ resource_value_for_uil_arg(
 	break;
 
       case sym_k_compound_string_value:
-          ret_val = _XmStringUngenerate((XmString)resource_value->value.c_value,
+          ret_val = XmStringUngenerate((XmString)resource_value->value.c_value,
                                         XmFONTLIST_DEFAULT_TAG,
                                         XmCHARSET_TEXT, XmCHARSET_TEXT);
           if (ret_val != NULL)
@@ -1140,8 +1149,8 @@ parse_uil(
     /* Call uil compiler with appropriate paramters */
 
     compile_stat = Uil(&command_desc, &compile_desc,
-		       (UIL_CB)message_cb, (char *)&user_mess_data,
-		       (UIL_CB)status_cb, (char *)&user_stat_data);
+		       (uil_message_cb_t)message_cb, (char *)&user_mess_data,
+		       (uil_status_cb_t)status_cb, (char *)&user_stat_data);
 
     fprintf(stderr, "\nUIL Compiler Version %d, ",
 		compile_desc.compiler_version);
