@@ -550,6 +550,9 @@ AC_CHECK_LIB(tirpc, svc_register,
        TIRPCLIB=-ltirpc])
 AC_SUBST(TIRPCLIB)
 
+dnl Need to check for freetype2 because of changes in Tim's Motif
+PKG_CHECK_MODULES(FT2, freetype2, [CFLAGS="${CFLAGS} -I/usr/include/freetype2/"], [AC_MSG_ERROR([Freetype2 not found])])
+
 dnl see if the rpc_inline_t type exists
 AC_CHECK_TYPE(rpc_inline_t, [],
    [AC_DEFINE_UNQUOTED([rpc_inline_t], [int32_t],
