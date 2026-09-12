@@ -4313,11 +4313,13 @@ void
 MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean makeActiveResources)
 {
     Pixel foreground;
-    Arg arg[3];
-    XmRendition r;
-    int a, d;
-    /* Get the default font */
-    if (!(r = XmRenderTableResolve(pAData->fontList, NULL, 0, NULL, NULL))) {
+
+    /*
+     * Extract a font from the font list.
+     */
+
+    if (! XmeRenderTableGetDefaultFont(pAData->fontList, &(pAData->font)))
+    {
 #if 0
         /* This always prints garbage on failure, which seems to
          * always happen at least 1-3 times on startup.
@@ -4325,12 +4327,7 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
 	sprintf((char *)wmGD.tmpBuffer,
                 ((char *)GETMESSAGE(62, 23, "failed to load font: %.100s\0")), (char*) pAData->fontList);
 #endif
-	/* Warning("XmeRenderTableGetDefaultFont() failed, trying a fixed font"); */
-	XtSetArg(arg[0], XmNascent, &a);
-	XtSetArg(arg[1], XmNdescent, &d);
-	XtSetArg(arg[2], XmNfont, &pAData->font);
-	XmRenditionGetValues(r, arg, 3);
-	XmRenditionFree(r);
+	Warning("XmeRenderTableGetDefaultFont() failed, trying a fixed font");
 
 #if defined(CSRG_BASED) || defined(__linux__)
 	/* HACK to try get _some_ font anyway (fontList seems to end
@@ -4357,7 +4354,8 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
 	/*
 	 *  Calculate title bar's height (using selected font) and store it in pAData.
 	 */
-	pAData->titleHeight = a + d + WM_TITLE_BAR_PADDING;
+	pAData->titleHeight = (pAData->font)->ascent + (pAData->font)->descent
+	+ WM_TITLE_BAR_PADDING;
     }
 
 

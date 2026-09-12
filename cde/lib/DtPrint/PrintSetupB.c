@@ -3385,8 +3385,6 @@ _DtPrintSetupBoxCreateDescription(
     XFontStruct* font;
     unsigned long char_width;
     XmString empty_label;
-    Arg arg[2];
-    XmRendition r;
     /*
      * create the description label gadget
      */
@@ -3403,13 +3401,10 @@ _DtPrintSetupBoxCreateDescription(
      * get the maximum character width for the default font of the gadget
      */
     XtVaGetValues(PSUB_Description(psub), XmNrenderTable, &render_table, NULL);
-    /* if(XmeRenderTableGetDefaultFont(render_table, &font)) */
-    if (!(r = XmRenderTableResolve(render_table, NULL, 0, NULL, NULL))) {
+    if(XmeRenderTableGetDefaultFont(render_table, &font))
+    {
 	Bool success;
-	/* Font metrics */
-	XtSetArg(arg[0], XmNfont, &font);
-	XtSetArg(arg[1], XmNwidth, &char_width);
-	XmRenditionGetValues(r, arg, 2);
+
 	success = XGetFontProperty(font, XA_QUAD_WIDTH, &char_width);
 	if(!success || char_width == 0)
 	{
