@@ -488,6 +488,8 @@ HelpCreateDA(
      */
     xa_ave_width = XmInternAtom(dpy, "AVERAGE_WIDTH"     , False);
 
+
+#if XmVersion > 2004
     /* Get a copy of the default rendition */
     r = XmRenderTableResolve(default_list, NULL, 0, XmFONTLIST_DEFAULT_TAG, NULL);
 
@@ -500,6 +502,39 @@ HelpCreateDA(
     pDAS->leading    = DA_args.leading;
     pDAS->fontAscent = maxFontAscent;
     pDAS->lineHeight = maxFontAscent + maxFontDescent + pDAS->leading + 1;
+    XmRenditionFree(r);
+#else
+    /*
+     * Malloc for the default font.
+     */
+    (void) XmeRenderTableGetDefaultFont(DA_args.userFont, &tmpFont);
+    if (default_list != NULL &&
+		XmFontListInitFontContext (&fontContext, default_list))
+      {
+	fontEntry = XmFontListNextEntry (fontContext);
+	if (fontEntry != NULL)
+	    default_font = XmFontListEntryGetFont (fontEntry, &fontType);
+
+	XmFontListFreeFontContext (fontContext);
+      }
+
+    /*
+     * fake out the next call by using the parent as the display widget
+     */
+    pDAS->dispWid = parent;
+    __DtHelpFontDatabaseInit (pDAS, default_font, fontType, tmpFont);
+
+    /*
+     * Get the base font meterics.
+     */
+    __DtHelpFontMetrics (pDAS->font_info, __DtHelpDefaultFontIndexGet(pDAS),
+			&maxFontAscent, &maxFontDescent, &maxFontCharWidth,
+			NULL, NULL);
+
+    pDAS->leading    = DA_args.leading;
+    pDAS->fontAscent = maxFontAscent;
+    pDAS->lineHeight = maxFontAscent + maxFontDescent + pDAS->leading + 1;
+#endif
 
     n = __DtHelpDefaultFontIndexGet(pDAS);
     if (n < 0)
@@ -955,7 +990,6 @@ HelpCreateDA(
     pDAS->canvas = _DtCanvasCreate (DefVirtFunctions, (_DtCvPointer) pDAS);
     _DtHelpProcessUnlock();
 
-    XmRenditionFree(r);
     return (XtPointer) pDAS;
 
 }  /* End _DtHelpCreateDA */
