@@ -489,7 +489,7 @@ HelpCreateDA(
     xa_ave_width = XmInternAtom(dpy, "AVERAGE_WIDTH"     , False);
 
 
-#if XmVersion > 2004
+#if XmVersion > 2006
     /* Get a copy of the default rendition */
     r = XmRenderTableResolve(default_list, NULL, 0, XmFONTLIST_DEFAULT_TAG, NULL);
 
