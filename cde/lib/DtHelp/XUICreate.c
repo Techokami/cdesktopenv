@@ -399,6 +399,9 @@ HelpCreateDA(
     XmFontListEntry	fontEntry;
     XmFontType		fontType;
 
+    Arg arg[3];
+    XmRendition r;
+
     /* Allocate the Display Area. */
     pDAS = (DtHelpDispAreaStruct *) XtMalloc(sizeof(DtHelpDispAreaStruct));
 
@@ -485,6 +488,22 @@ HelpCreateDA(
      */
     xa_ave_width = XmInternAtom(dpy, "AVERAGE_WIDTH"     , False);
 
+
+#if XmVersion > 2004
+    /* Get a copy of the default rendition */
+    r = XmRenderTableResolve(default_list, NULL, 0, XmFONTLIST_DEFAULT_TAG, NULL);
+
+    /* Font metrics */
+    XtSetArg(arg[0], XmNascent, &maxFontAscent);
+    XtSetArg(arg[1], XmNdescent, &maxFontDescent);
+    XtSetArg(arg[2], XmNwidth, &maxFontCharWidth);
+    XmRenditionGetValues(r, arg, 3);
+
+    pDAS->leading    = DA_args.leading;
+    pDAS->fontAscent = maxFontAscent;
+    pDAS->lineHeight = maxFontAscent + maxFontDescent + pDAS->leading + 1;
+    XmRenditionFree(r);
+#else
     /*
      * Malloc for the default font.
      */
@@ -515,6 +534,7 @@ HelpCreateDA(
     pDAS->leading    = DA_args.leading;
     pDAS->fontAscent = maxFontAscent;
     pDAS->lineHeight = maxFontAscent + maxFontDescent + pDAS->leading + 1;
+#endif
 
     n = __DtHelpDefaultFontIndexGet(pDAS);
     if (n < 0)
