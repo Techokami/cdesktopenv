@@ -106,6 +106,7 @@ case "${build_os}" in
 		;;
 	solaris*|sun*)
 		build_solaris=yes
+		SOURCE_CPP_DEFINES="${SOURCE_CPP_DEFINES} -DSVR4"
 		;;
 	aix*)
 		build_aix=yes
