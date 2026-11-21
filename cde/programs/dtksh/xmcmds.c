@@ -176,10 +176,6 @@ static int Text_VarAndWidget(
                         Boolean varIsString,
                         int argc,
                         char *argv[]) ;
-static int Text_WidgetAndBoolean( 
-                        void (*func)(Widget w, char b),
-                        int argc,
-                        char *argv[]) ;
 static int Text_WidgetAndOneParam( 
                         Boolean (*func)(Widget, intptr_t),
                         Boolean returnBoolean,
@@ -4082,7 +4078,11 @@ do_XmTextGetString(
 
 static int
 Text_WidgetAndBoolean(
-        void (*func)(Widget w, char b),
+#if NeedWidePrototypes
+        void (*func)(Widget w, int b),
+#else
+        void (*func)(Widget w, Boolean b),
+#endif
         int argc,
         char *argv[] )
 {
